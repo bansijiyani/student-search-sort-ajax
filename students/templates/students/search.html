@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Search</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #heading {
+            text-align: center;
+            font-size: 24px;
+        }
+
+    </style>
+</head>
+<body>
+    <h1 id="heading">Search Students</h1>
+
+    <label for="query_type">Search by:</label>
+    <select id="query_type">
+        <option value="name">Name</option>
+        <option value="nationality">Nationality</option>
+        <option value="city">City</option>
+    </select>
+    <br>
+    <br>
+    <label for="sort_by">Sort by:</label>
+    <select id="sort_by">
+        <option value="name">Name</option>
+        <option value="nationality">Nationality</option>
+        <option value="city">City</option>
+        <option value="age">Age</option>
+    </select>
+    <br>
+    <br>
+
+    <label for="query">Enter your search:</label>
+    <input type="text" id="query">
+
+    <button id="search_button">Search</button>
+
+    <h2>Results</h2>
+    <table border="1" id="results_table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Nationality</th>
+                <th>City</th>
+                <th>Gender</th>
+                <th>Age</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        $(document).ready(function(){
+            $('#search_button').click(function(){
+                let query_type = $('#query_type').val();
+                let query = $('#query').val();
+                let sort_by = $('#sort_by').val();
+
+                $.ajax({
+                    url: '/students/search_results/',
+                    data: {
+                        'query_type': query_type,
+                        'query': query,
+                        'sort_by': sort_by
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        let table = $('#results_table tbody');
+                        table.empty();
+
+                        // Sort the data array based on the selected sort criteria
+                        data.sort(function(a, b) {
+                            if (sort_by === 'age') {
+                                return a.age - b.age;
+                            } else {
+                                return a[sort_by].localeCompare(b[sort_by]);
+                            }
+                        });
+
+                        data.forEach(function(student) {
+                            let row = '<tr>';
+                            row += '<td>' + student.id_no + '</td>';
+                            row += '<td>' + student.name + '</td>';
+                            row += '<td>' + student.nationality + '</td>';
+                            row += '<td>' + student.city + '</td>';
+                            row += '<td>' + student.gender + '</td>';
+                            row += '<td>' + student.age + '</td>';
+                            row += '</tr>';
+                            table.append(row);
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
