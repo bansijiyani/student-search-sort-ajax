@@ -38,16 +38,16 @@
 <body>
     <h1 id="heading">Search Students</h1>
 
-    <label for="query_type">Search by:</label>
-    <select id="query_type">
+    <label for="search">Search by:</label>
+    <select id="search">
         <option value="name">Name</option>
         <option value="nationality">Nationality</option>
         <option value="city">City</option>
     </select>
     <br>
     <br>
-    <label for="sort_by">Sort by:</label>
-    <select id="sort_by">
+    <label for="sort">Sort by:</label>
+    <select id="sort">
         <option value="name">Name</option>
         <option value="nationality">Nationality</option>
         <option value="city">City</option>
@@ -79,23 +79,29 @@
     <script>
         $(document).ready(function(){
             $('#search_button').click(function(){
-                let query_type = $('#query_type').val();
+                let query_type = $('#search').val();
                 let query = $('#query').val();
-                let sort_by = $('#sort_by').val();
+                let sort_by = $('#sort').val();
 
                 $.ajax({
                     url: '/students/search_results/',
                     data: {
-                        'query_type': query_type,
+                        'query_type': query_type,  
                         'query': query,
-                        'sort_by': sort_by
+                        'sort_by': sort_by        
                     },
                     dataType: 'json',
                     success: function(data) {
                         let table = $('#results_table tbody');
                         table.empty();
 
-                        // Sort the data array based on the selected sort criteria
+                        console.log(data);
+
+                        if (!Array.isArray(data)) {
+                            console.error('Data is not an array');
+                            return;
+                        }
+
                         data.sort(function(a, b) {
                             if (sort_by === 'age') {
                                 return a.age - b.age;
@@ -106,7 +112,7 @@
 
                         data.forEach(function(student) {
                             let row = '<tr>';
-                            row += '<td>' + student.id_no + '</td>';
+                            row += '<td>' + student.id_no + '</td>'; 
                             row += '<td>' + student.name + '</td>';
                             row += '<td>' + student.nationality + '</td>';
                             row += '<td>' + student.city + '</td>';
@@ -115,6 +121,9 @@
                             row += '</tr>';
                             table.append(row);
                         });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error: ' + status + ' ' + error);  
                     }
                 });
             });
